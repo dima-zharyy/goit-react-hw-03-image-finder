@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { Searchbar, ImageGallery, LoadButton, Modal, Loader } from 'components';
 import { fetchImages } from 'service';
 import { getProperData } from 'helpers';
-import { AppContainer, EmptyResultMessage } from './App.styled';
+import { AppContainer } from './App.styled';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
 
 export class App extends Component {
   state = {
@@ -13,7 +15,6 @@ export class App extends Component {
     largeImageData: {},
     showModal: false,
     showSpinner: false,
-    error: null,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -21,12 +22,14 @@ export class App extends Component {
     const { query: nextQuery, page: nextPage } = this.state;
 
     if (prevQuery !== nextQuery) {
-      this.setState({ showSpinner: true, error: null });
+      this.setState({ showSpinner: true });
 
       fetchImages(nextQuery, nextPage)
         .then(data => {
           if (data.totalHits === 0) {
-            return Promise.reject(`There is no result on query: ${nextQuery}`);
+            return Promise.reject(
+              this.notify(`There is no result on query: ${nextQuery}`)
+            );
           }
 
           this.setState({
@@ -34,7 +37,7 @@ export class App extends Component {
             totalHits: data.totalHits,
           });
         })
-        .catch(error => this.setState({ error }))
+        .catch()
         .finally(() => this.setState({ showSpinner: false }));
 
       return;
@@ -78,21 +81,30 @@ export class App extends Component {
     this.setState({ query: [query], page: 1, imagesData: [] });
   };
 
+  notify = message => {
+    toast.info(message, {
+      position: 'top-right',
+      autoClose: 4000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
+
   render() {
     const {
       imagesData,
       totalHits,
       showModal,
       showSpinner,
-      error,
       largeImageData: { largeImageUrl, tags },
     } = this.state;
 
     return (
       <AppContainer>
         <Searchbar onSubmit={this.handleSubmit} />
-
-        {error && <EmptyResultMessage>{error}</EmptyResultMessage>}
 
         <ImageGallery onOpenModal={this.handleOpenModal} images={imagesData} />
 
@@ -107,6 +119,19 @@ export class App extends Component {
             <img src={largeImageUrl} alt={tags} />
           </Modal>
         ) : null}
+
+        <ToastContainer
+          position="top-right"
+          autoClose={4000}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          style={{ top: 0 }}
+        />
       </AppContainer>
     );
   }

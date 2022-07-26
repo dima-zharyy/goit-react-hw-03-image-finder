@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Header, Form, Button, Input } from './Searchbar.styled';
 import { ImSearch } from 'react-icons/im';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
 
 export class Searchbar extends Component {
   state = {
@@ -13,7 +15,8 @@ export class Searchbar extends Component {
     event.preventDefault();
 
     if (query.trim() === '') {
-      alert('Enter some text');
+      // alert('Enter some text');
+      this.notify();
       this.resetForm();
       return;
     }
@@ -24,6 +27,18 @@ export class Searchbar extends Component {
 
   resetForm = () => {
     this.setState({ query: '' });
+  };
+
+  notify = () => {
+    toast.info('Please type at least one letter!', {
+      position: 'top-right',
+      autoClose: 4000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
   };
 
   handleInputChange = event => {
@@ -46,6 +61,18 @@ export class Searchbar extends Component {
             onChange={this.handleInputChange}
           />
         </Form>
+        <ToastContainer
+          position="top-right"
+          autoClose={4000}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          style={{ top: 0 }}
+        />
       </Header>
     );
   }
