@@ -27,9 +27,7 @@ export class App extends Component {
       fetchImages(nextQuery, nextPage)
         .then(data => {
           if (data.totalHits === 0) {
-            return Promise.reject(
-              this.notify(`There is no result on query: ${nextQuery}`)
-            );
+            return Promise.reject(`There is no result on query: ${nextQuery}`);
           }
 
           this.setState({
@@ -37,7 +35,7 @@ export class App extends Component {
             totalHits: data.totalHits,
           });
         })
-        .catch()
+        .catch(message => this.notify(message))
         .finally(() => this.setState({ showSpinner: false }));
 
       return;
